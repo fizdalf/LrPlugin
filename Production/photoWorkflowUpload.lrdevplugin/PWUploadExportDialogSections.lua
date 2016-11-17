@@ -587,18 +587,23 @@ function PWUploadExportDialogSections.sectionsForBottomOfDialog(_, propertyTable
                                 }
                             },
                             f:view {
+                                place = "vertical",
                                 visible = LrBinding.keyIsNotNil 'clientIds',
-                                f:radio_button {
-                                    title = "Upload to Session",
-                                    value = bind 'selectedUpload',
-                                    checked_value = "session"
-                                },
-                                f:radio_button {
-                                    title = "Upload to Order",
-                                    value = bind 'selectedUpload',
-                                    checked_value = 'order'
+                                f:row {
+                                    f:radio_button {
+                                        title = "Upload to Session",
+                                        value = bind 'selectedUpload',
+                                        checked_value = "session"
+                                    },
+                                }, f:row {
+                                    f:radio_button {
+                                        title = "Upload to Order",
+                                        value = bind 'selectedUpload',
+                                        checked_value = 'order'
+                                    }
                                 }
                             },
+
                             f:view {
                                 place = 'overlapping',
                                 f:view {
@@ -610,12 +615,12 @@ function PWUploadExportDialogSections.sectionsForBottomOfDialog(_, propertyTable
                                     f:edit_field {
                                         value = bind "sessionSearchString",
                                         immediate = true,
-                                        width = 180
+                                        width = 320
                                     },
                                     f:simple_list {
                                         value = bind 'sessionIds',
                                         items = bind 'filteredSessionsList',
-                                        width = 350
+                                        width = 320
                                     }
                                 },
                                 f:view {
@@ -627,12 +632,12 @@ function PWUploadExportDialogSections.sectionsForBottomOfDialog(_, propertyTable
                                     f:edit_field {
                                         value = bind "orderSearchString",
                                         immediate = true,
-                                        width = 180
+                                        width = 320
                                     },
                                     f:simple_list {
                                         value = bind 'orderIds',
                                         items = bind 'filteredOrdersList',
-                                        width = 350
+                                        width = 320
                                     }
                                 },
                             }
