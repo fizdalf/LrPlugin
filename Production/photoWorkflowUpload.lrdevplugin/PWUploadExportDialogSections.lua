@@ -496,7 +496,7 @@ function PWUploadExportDialogSections.sectionsForBottomOfDialog(_, propertyTable
                 value = _PLUGIN:resourceId("icon.png"),
                 height = 100,
                 width = 100,
-                place_horizontal = 1,
+                place_horizontal = 0.5,
                 frame_width = 2
             },
             f:column {
@@ -504,7 +504,6 @@ function PWUploadExportDialogSections.sectionsForBottomOfDialog(_, propertyTable
                 f:view {
                     visible = LrBinding.keyIsNil 'loggedInUser',
                     spacing = f:control_spacing();
-                    f:row {},
                     f:row {
                         f:static_text {
                             title = "Email:",
