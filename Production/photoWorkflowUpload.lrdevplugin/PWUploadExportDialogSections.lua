@@ -653,10 +653,24 @@ function PWUploadExportDialogSections.processRenderedPhotos(functionContext, exp
     local exportSession = exportContext.exportSession
     local exportParams = exportContext.propertyTable
 
-    local UserManager = exportParams.UserManager
-    local apiKey = UserManager.getLoggedInUser.getApiKey()
-    local sessionId = UserManager.getSelectedSessionId()
-    local orderId = UserManager.getSelectedOrderId()
+
+    local UM = exportParams.UserManager
+    if (not UM) then
+        -- the user is trying to upload withoug opening the export dialog...
+        UM = UserManager()
+        local path = LrPathUtils.child(_PLUGIN.path, "test.txt")
+        local chunk, error = loadfile(path)
+        if chunk ~= nil then
+            -- success, result contains the retrieved chunk
+            local testData = chunk()
+            UM.loadData(testData)
+        end
+    end
+
+
+    local apiKey = UM.getLoggedInUser().getApiKey()
+    local sessionId = UM.getSelectedSessionId()
+    local orderId = UM.getSelectedOrderId()
     -- Set progress title.
     local nPhotos = exportSession:countRenditions()
 
