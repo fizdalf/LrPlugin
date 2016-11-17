@@ -449,7 +449,7 @@ function PWUploadExportDialogSections.startDialog(propertyTable)
         local testData = chunk()
         UM.loadData(testData)
     end
-
+    propertyTable.test1 = 'false'
     -- here we should have data loaded
 
     -- check if there's a logged in user
