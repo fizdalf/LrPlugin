@@ -605,13 +605,15 @@ function PWUploadExportDialogSections.sectionsForBottomOfDialog(_, propertyTable
                             f:view {
                                 f:radio_button {
                                     title = "test1",
-                                    value = bind 'test1'
+                                    value = bind 'test1',
+                                    checked_value = 'true'
                                 }
                             },
                             f:view {
                                 f:radio_button {
                                     title = "test2",
-                                    value = bind 'test2'
+                                    value = bind 'test2',
+                                    checke_value = 'false'
                                 }
                             },
 
