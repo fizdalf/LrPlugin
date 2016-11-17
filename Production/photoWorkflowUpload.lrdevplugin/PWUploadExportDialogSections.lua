@@ -603,6 +603,17 @@ function PWUploadExportDialogSections.sectionsForBottomOfDialog(_, propertyTable
                                 }
                             },
                             f:view {
+                                f:radio_button {
+                                    title = "test1"
+                                }
+                            },
+                            f:view {
+                                f:radio_button {
+                                    title = "test2"
+                                }
+                            },
+
+                            f:view {
                                 place = 'overlapping',
                                 f:view {
                                     visible = LrBinding.keyEquals('selectedUpload', 'session'),
