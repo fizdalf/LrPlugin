@@ -492,12 +492,19 @@ function PWUploadExportDialogSections.sectionsForBottomOfDialog(_, propertyTable
         {
             title = "Photo Workflow",
             synopsis = bind { key = 'fullPath', object = propertyTable },
-
+            f:picture {
+                value = _PLUGIN:resourceId("icon.png"),
+                height = 100,
+                width = 100,
+                place_horizontal = 1,
+                alignment = "right"
+            },
             f:column {
                 place = 'overlapping',
                 f:view {
                     visible = LrBinding.keyIsNil 'loggedInUser',
                     spacing = f:control_spacing();
+                    f:row {},
                     f:row {
                         f:static_text {
                             title = "Email:",
@@ -511,8 +518,10 @@ function PWUploadExportDialogSections.sectionsForBottomOfDialog(_, propertyTable
                             width_in_chars = 30
                         },
                     },
+
                     f:row {
                         spacing = f:label_spacing(),
+
                         f:static_text {
                             title = 'Password:',
                             alignment = 'right',
