@@ -604,12 +604,14 @@ function PWUploadExportDialogSections.sectionsForBottomOfDialog(_, propertyTable
                             },
                             f:view {
                                 f:radio_button {
-                                    title = "test1"
+                                    title = "test1",
+                                    value = bind 'test1'
                                 }
                             },
                             f:view {
                                 f:radio_button {
-                                    title = "test2"
+                                    title = "test2",
+                                    value = bind 'test2'
                                 }
                             },
 
