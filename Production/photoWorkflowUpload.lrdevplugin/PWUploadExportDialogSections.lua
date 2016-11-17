@@ -589,21 +589,19 @@ function PWUploadExportDialogSections.sectionsForBottomOfDialog(_, propertyTable
                             f:view {
                                 place = "vertical",
                                 visible = LrBinding.keyIsNotNil 'clientIds',
-                                f:row {
-                                    f:radio_button {
-                                        title = "Upload to Session",
-                                        value = bind 'selectedUpload',
-                                        checked_value = "session"
-                                    },
-                                }, f:row {
-                                    f:radio_button {
-                                        title = "Upload to Order",
-                                        value = bind 'selectedUpload',
-                                        checked_value = 'order'
-                                    }
+                                f:radio_button {
+                                    title = "Upload to Session",
+                                    value = bind 'selectedUpload',
+                                    checked_value = "session"
+                                },
+                            },
+                            f:view {
+                                f:radio_button {
+                                    title = "Upload to Order",
+                                    value = bind 'selectedUpload',
+                                    checked_value = 'order'
                                 }
                             },
-
                             f:view {
                                 place = 'overlapping',
                                 f:view {
