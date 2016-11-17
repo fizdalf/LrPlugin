@@ -497,7 +497,7 @@ function PWUploadExportDialogSections.sectionsForBottomOfDialog(_, propertyTable
                 height = 100,
                 width = 100,
                 place_horizontal = 1,
-                alignment = "right"
+                frame_width = 2
             },
             f:column {
                 place = 'overlapping',
