@@ -587,36 +587,21 @@ function PWUploadExportDialogSections.sectionsForBottomOfDialog(_, propertyTable
                                 }
                             },
                             f:view {
-                                place = "vertical",
                                 visible = LrBinding.keyIsNotNil 'clientIds',
-                                f:radio_button {
-                                    title = "Upload to Session",
-                                    value = bind 'selectedUpload',
-                                    checked_value = "session"
-                                },
-                            },
-                            f:view {
-                                f:radio_button {
-                                    title = "Upload to Order",
-                                    value = bind 'selectedUpload',
-                                    checked_value = 'order'
+                                f:column {
+                                    spacing = f:label_spacing(),
+                                    f:radio_button {
+                                        title = "Upload to Session",
+                                        value = bind 'selectedUpload',
+                                        checked_value = "session"
+                                    },
+                                    f:radio_button {
+                                        title = "Upload to Order",
+                                        value = bind 'selectedUpload',
+                                        checked_value = 'order'
+                                    }
                                 }
                             },
-                            f:view {
-                                f:radio_button {
-                                    title = "test1",
-                                    value = bind 'test1',
-                                    checked_value = 'true'
-                                }
-                            },
-                            f:view {
-                                f:radio_button {
-                                    title = "test2",
-                                    value = bind 'test2',
-                                    checke_value = 'false'
-                                }
-                            },
-
                             f:view {
                                 place = 'overlapping',
                                 f:view {
