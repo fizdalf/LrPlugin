@@ -590,6 +590,9 @@ function PWUploadExportDialogSections.sectionsForBottomOfDialog(_, propertyTable
                                 visible = LrBinding.keyIsNotNil 'clientIds',
                                 f:column {
                                     spacing = f:label_spacing(),
+                                    f:static_text {
+                                        visible = false
+                                    },
                                     f:radio_button {
                                         title = "Upload to Session",
                                         value = bind 'selectedUpload',
