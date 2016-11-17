@@ -442,15 +442,13 @@ function PWUploadExportDialogSections.startDialog(propertyTable)
     propertyTable.UserManager = UserManager()
     local UM = propertyTable.UserManager
     -- try to load data
+
     local path = LrPathUtils.child(_PLUGIN.path, "test.txt")
     local chunk, error = loadfile(path)
     if chunk ~= nil then
         -- success, result contains the retrieved chunk
         local testData = chunk()
         UM.loadData(testData)
-    else
-        -- failure, result contains the error
-        Debug.pause(error)
     end
 
     -- here we should have data loaded

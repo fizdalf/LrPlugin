@@ -5539,3 +5539,71 @@ exportPhotosViaDialog [=? 0]
 -----Arguments:-----
 propertyTable = {[{_name = "kPersistentObservationConditionsKey"}] = table: 000000003A8A...
 
+16/11/17 20:15:20com.johnrellis.logger	TRACE	
+-----PWUploadExportDialogSections.endDialog failed-----
+[string "PWUploadExportDialogSections.lua"]:484: attempt to index local 'result' (a nil value)
+-----Stack-----:
+error [PWUploadExportDialogSections.lua 484]     result:write('return ' .. propertyTable.UserManager.serialize())
+PWUploadExportDialogSections.endDialog [PWUploadExportDialogSections.lua 480] function PWUploadExportDialogSections.endDialog(propertyTable, why)
+pcall [=[C] -1] 
+[=? 0] 
+[=[C] -1] 
+pcallWithContext [=? 0] 
+endDialog [=? 0] 
+endDialog [=? 0] 
+[=? 0] 
+[=[C] -1] 
+pcallWithContext [=? 0] 
+exportPhotosViaDialog [=? 0] 
+[=? 0] 
+[=(tail call) -1] 
+? [=? 0] 
+[=? 0] 
+-----Arguments:-----
+propertyTable = {[{_name = "kPersistentObservationConditionsKey"}] = table: 0x7fb1aa54c7...
+why = "cancel"
+
+16/11/17 20:15:46com.johnrellis.logger	TRACE	
+-----Paused-----
+-----Stack-----:
+[PWUploadExportDialogSections.lua 453]         Debug.pause(error)
+pcall [=[C] -1] 
+startDialog [=? 0] 
+startDialog [=? 0] 
+? [=? 0] 
+? [=? 0] 
+[=? 0] 
+[=[C] -1] 
+pcallWithContext [=? 0] 
+exportPhotosViaDialog [=? 0] 
+[=? 0] 
+[=(tail call) -1] 
+? [=? 0] 
+[=? 0] 
+-----Arguments:-----
+error = "/Volumes/VMware Shared Folders/proyectos/Adam Hills/LightRoom Plugin/ph...
+
+16/11/17 20:16:11com.johnrellis.logger	TRACE	
+-----PWUploadExportDialogSections.endDialog failed-----
+[string "PWUploadExportDialogSections.lua"]:484: attempt to index local 'result' (a nil value)
+-----Stack-----:
+error [PWUploadExportDialogSections.lua 484]     result:write('return ' .. propertyTable.UserManager.serialize())
+PWUploadExportDialogSections.endDialog [PWUploadExportDialogSections.lua 480] function PWUploadExportDialogSections.endDialog(propertyTable, why)
+pcall [=[C] -1] 
+[=? 0] 
+[=[C] -1] 
+pcallWithContext [=? 0] 
+endDialog [=? 0] 
+endDialog [=? 0] 
+[=? 0] 
+[=[C] -1] 
+pcallWithContext [=? 0] 
+exportPhotosViaDialog [=? 0] 
+[=? 0] 
+[=(tail call) -1] 
+? [=? 0] 
+[=? 0] 
+-----Arguments:-----
+propertyTable = {[{_name = "kPersistentObservationConditionsKey"}] = {}, [{_name = "kWea...
+why = "cancel"
+
