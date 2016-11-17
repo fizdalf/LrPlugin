@@ -129,7 +129,7 @@ local function selectedClient(prop, key, value)
     local selectedClientId = prop.clientIds[1]
     local foundClient = prop.loggedInUser.findClient(selectedClientId)
     prop.selectedClient = foundClient
-    prop.selectedUpload = nil
+    prop.selectedUpload = ''
     prop.UserManager.setSelectedClientId(prop.clientIds[1])
     prop.selectedSession = nil
     prop.selectedOrder = nil
