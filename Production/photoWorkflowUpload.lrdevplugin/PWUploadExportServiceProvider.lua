@@ -6,10 +6,6 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-
-require 'strict'
-
-
 require 'PWUploadExportDialogSections'
 
 local LrLogger = import 'LrLogger'
