@@ -574,7 +574,8 @@ function PWUploadExportDialogSections.sectionsForBottomOfDialog(_, propertyTable
                                 f:edit_field {
                                     value = bind "clientSearchString",
                                     immediate = true,
-                                    width = 180
+                                    width = 180,
+                                    placeholder_string = "Search Clients"
                                 },
                                 f:simple_list {
                                     items = bind 'filteredClientsList',
@@ -616,7 +617,8 @@ function PWUploadExportDialogSections.sectionsForBottomOfDialog(_, propertyTable
                                     f:edit_field {
                                         value = bind "sessionSearchString",
                                         immediate = true,
-                                        width = 320
+                                        width = 320,
+                                        placeholder_string = "Search Sessions"
                                     },
                                     f:simple_list {
                                         value = bind 'sessionIds',
@@ -633,7 +635,8 @@ function PWUploadExportDialogSections.sectionsForBottomOfDialog(_, propertyTable
                                     f:edit_field {
                                         value = bind "orderSearchString",
                                         immediate = true,
-                                        width = 320
+                                        width = 320,
+                                        placeholder_string = "Search Sessions"
                                     },
                                     f:simple_list {
                                         value = bind 'orderIds',
