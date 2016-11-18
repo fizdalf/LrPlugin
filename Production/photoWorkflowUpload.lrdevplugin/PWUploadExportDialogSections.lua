@@ -16,6 +16,8 @@ local LrLogger = import 'LrLogger'
 local LrPathUtils = import 'LrPathUtils'
 local LrFileUtils = import 'LrFileUtils'
 local LrFunctionContext = import 'LrFunctionContext'
+local LrPlugin = import 'LrPlugin'
+
 
 local LrStringUtils = import 'LrStringUtils'
 
@@ -461,6 +463,7 @@ function PWUploadExportDialogSections.startDialog(propertyTable)
     end
 
     print_to_log_table(_PLUGIN:resourceId("icon.png"))
+    print_to_log_table(LrPlugin:hasResource('icon.png'))
     propertyTable:addObserver('selectedUpload', updateSelectedUpload)
     propertyTable:addObserver('email', checkLogin)
     propertyTable:addObserver('password', checkLogin)
