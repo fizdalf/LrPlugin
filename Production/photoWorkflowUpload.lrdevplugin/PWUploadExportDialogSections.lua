@@ -463,20 +463,12 @@ function PWUploadExportDialogSections.startDialog(propertyTable)
 
     local isIcon
     print_to_log_table(_PLUGIN:resourceId("icon.png"))
-    local test = function()
-        isIcon = _PLUGIN:hasResource('icon.png')
-    end
 
-    local status, error = pcall(test)
-    if (not status) then
-        print_to_log_table(error)
-    else
-        if (isIcon) then
-            print_to_log_table("icon was found")
-        else
-            print_to_log_table("Icon was not found")
-        end
-    end
+    isIcon = _PLUGIN:hasResource('icon.png')
+
+    print_to_log_table(_PLUGIN.path)
+
+
 
 
     propertyTable:addObserver('selectedUpload', updateSelectedUpload)
