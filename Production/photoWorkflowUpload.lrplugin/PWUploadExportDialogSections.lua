@@ -495,7 +495,7 @@ function PWUploadExportDialogSections.sectionsForBottomOfDialog(_, propertyTable
             title = "Photo Workflow",
             synopsis = bind { key = 'fullPath', object = propertyTable },
             f:picture {
-                value = _PLUGIN:resourceId("PW-LOGO.jpg"),
+                value = _PLUGIN:resourceId("PW-LOGO.png"),
                 height = 100,
                 width = 100,
                 place_horizontal = 0.5,
