@@ -16,7 +16,6 @@ local LrLogger = import 'LrLogger'
 local LrPathUtils = import 'LrPathUtils'
 local LrFileUtils = import 'LrFileUtils'
 local LrFunctionContext = import 'LrFunctionContext'
-local LrPlugin = import 'LrPlugin'
 
 
 local LrStringUtils = import 'LrStringUtils'
@@ -465,7 +464,7 @@ function PWUploadExportDialogSections.startDialog(propertyTable)
     local isIcon
     print_to_log_table(_PLUGIN:resourceId("icon.png"))
     local test = function()
-        isIcon = plugin:hasResource('icon.png')
+        isIcon = _PLUGIN:hasResource('icon.png')
     end
 
     local status, error = pcall(test)
