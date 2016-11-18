@@ -461,15 +461,6 @@ function PWUploadExportDialogSections.startDialog(propertyTable)
         getClientUpdates(propertyTable)
     end
 
-    local isIcon
-    print_to_log_table(_PLUGIN:resourceId("icon.png"))
-
-    isIcon = _PLUGIN:hasResource('icon.png')
-
-    print_to_log_table(_PLUGIN.path)
-
-
-
 
     propertyTable:addObserver('selectedUpload', updateSelectedUpload)
     propertyTable:addObserver('email', checkLogin)

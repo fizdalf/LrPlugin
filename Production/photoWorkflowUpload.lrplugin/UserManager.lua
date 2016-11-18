@@ -68,6 +68,13 @@ function Session(id, name, date)
         return _date
     end
 
+    function self.getFormattedDate()
+        local s = _date
+        local p = "(%d+)-(%d+)-(%d+)"
+        local year, month, day = s:match(p)
+        return day .. "-" .. month .. "-" .. year
+    end
+
     function self.setDate(date)
         _date = date
     end
@@ -84,7 +91,6 @@ function Session(id, name, date)
 
     function self.loadData(sessionData)
         self.setId(sessionData['id'])
-
         self.setName(sessionData['name'])
         self.setDate(sessionData['date'])
     end
@@ -99,6 +105,13 @@ function Order(id, date, status)
 
     function self.getDate()
         return _date
+    end
+
+    function self.getFormattedDate()
+        local s = _date
+        local p = "(%d+)-(%d+)-(%d+)"
+        local year, month, day = s:match(p)
+        return day .. "-" .. month .. "-" .. year
     end
 
     function self.setDate(date)
@@ -156,7 +169,7 @@ function Client(id, name, sessionList, orderList)
             if (isView) then
                 local bst = BinaryTree()
                 for key, session in pairs(sessions) do
-                    local name = (session.getDate() or "no date ") .. " - " .. (session.getId() or " no id") .. " - " .. (session.getName() or "no description")
+                    local name = ((session.getId() or " no id") .. " - " .. session.getFormattedDate() or "no date ") .. " - " .. (session.getName() or "no description")
                     bst.insertItem(name, { title = name, value = session.getId() })
                 end
                 return bst.getAll()
@@ -186,7 +199,7 @@ function Client(id, name, sessionList, orderList)
             if (isView) then
                 local bst = BinaryTree()
                 for key, order in pairs(orders) do
-                    local name = (order.getId() or " no id") .. " - " .. (order.getDate() or "no date ") .. " - " .. (order.getStatus() or "no status")
+                    local name = (order.getId() or " no id") .. " - " .. (order.getFormattedDate() or "no date ") .. " - " .. (order.getStatus() or "no status")
                     bst.insertItem(name, { title = name, value = order.getId() })
                 end
                 return bst.getAll()
