@@ -465,7 +465,7 @@ function PWUploadExportDialogSections.startDialog(propertyTable)
     local isIcon
     print_to_log_table(_PLUGIN:resourceId("icon.png"))
     local test = function()
-        isIcon = LrPlugin:hasResource('icon.png')
+        isIcon = plugin:hasResource('icon.png')
     end
 
     local status, error = pcall(test)
