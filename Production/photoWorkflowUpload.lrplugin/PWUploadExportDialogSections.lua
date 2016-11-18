@@ -461,7 +461,7 @@ function PWUploadExportDialogSections.startDialog(propertyTable)
         getClientUpdates(propertyTable)
     end
 
-
+    print_to_log_table(_PLUGIN:resourceId("PW-LOGO.png"))
     propertyTable:addObserver('selectedUpload', updateSelectedUpload)
     propertyTable:addObserver('email', checkLogin)
     propertyTable:addObserver('password', checkLogin)
