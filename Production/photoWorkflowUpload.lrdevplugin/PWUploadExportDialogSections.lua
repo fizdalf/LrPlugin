@@ -462,8 +462,24 @@ function PWUploadExportDialogSections.startDialog(propertyTable)
         getClientUpdates(propertyTable)
     end
 
+    local isIcon
     print_to_log_table(_PLUGIN:resourceId("icon.png"))
-    print_to_log_table(LrPlugin:hasResource('icon.png'))
+    local test = function()
+        isIcon = LrPlugin:hasResource('icon.png')
+    end
+
+    local status, error = pcall(test)
+    if (not status) then
+        print_to_log_table(error)
+    else
+        if (isIcon) then
+            print_to_log_table("icon was found")
+        else
+            print_to_log_table("Icon was not found")
+        end
+    end
+
+
     propertyTable:addObserver('selectedUpload', updateSelectedUpload)
     propertyTable:addObserver('email', checkLogin)
     propertyTable:addObserver('password', checkLogin)
