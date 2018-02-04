@@ -16,9 +16,8 @@ local LrHttp = import 'LrHttp'
 local JSON = require "JSON" -- one-time load of the routines
 
 require 'Utils'
-
-
 myLogger:enable("logfile")
+
 function Item(id)
     local self = {}
 
@@ -164,6 +163,7 @@ function Client(id, name, sessionList, orderList)
     end
 
     function self.getAllSessions(isView)
+        -- myLogger:trace("getting all sessions")
         local sessions = _sessionList.getAll()
         if sessions then
             if (isView) then
@@ -221,7 +221,9 @@ function Client(id, name, sessionList, orderList)
                 if (_lastUpdatedDateSessions ~= nil) then
                     serverQuery = serverQuery .. "?modifiedAfter=" .. _lastUpdatedDateSessions
                 end
+                -- myLogger:trace("server query: " .. serverQuery)
 
+                local newLastUpdatedSessions;
                 local result, hdrs = LrHttp.get(serverQuery, headers)
                 if not result then
                     if hdrs and hdrs.error then
@@ -236,10 +238,10 @@ function Client(id, name, sessionList, orderList)
                             local MON = { Jan = "01", Feb = "02", Mar = "03", Apr = "04", May = "05", Jun = "06", Jul = "07", Aug = "08", Sep = "09", Oct = "10", Nov = "11", Dec = "12" }
                             month = MON[month]
                             day = string.format("%02d", day)
-                            _lastUpdatedDateSessions = year .. "-" .. month .. "-" .. day .. " " .. hour .. ":" .. min .. ":" .. sec
+                            newLastUpdatedSessions = year .. "-" .. month .. "-" .. day .. " " .. hour .. ":" .. min .. ":" .. sec
                         end
                     end
-
+                    -- myLogger:trace("sessions fetched: " .. result)
                     local lua_result = JSON:decode(result)
                     local sessionsToFetch
                     if (lua_result.sessions) then
@@ -252,13 +254,11 @@ function Client(id, name, sessionList, orderList)
 
                             local foundSession = _sessionList.search(currentSession['id']) -- search for it in the BST
                             if (currentSession['deleted'] == 1) then -- check if the client is marke for deletion
-
                                 if (foundSession) then -- in case we find it
                                     --remove it from the list (all associated sessions and orders are gone for free :D)
+                                    -- myLogger:trace("removing session with id: " .. currentSession['id'])
                                     _sessionList.remove(currentSession['id'])
                                 end
-                                sessionsFetched = sessionsFetched + 1
-                                updateCallback(sessionsToFetch, sessionsFetched)
                             else
                                 local sessionName = currentSession['name']
                                 local sessionDate = currentSession.date
@@ -268,11 +268,12 @@ function Client(id, name, sessionList, orderList)
                                 else
                                     _sessionList.insertItem(currentSession['id'], Session(currentSession['id'], sessionName, sessionDate))
                                 end
-                                sessionsFetched = sessionsFetched + 1
-                                updateCallback(sessionsToFetch, sessionsFetched)
                             end
+                            sessionsFetched = sessionsFetched + 1
+                            updateCallback(sessionsToFetch, sessionsFetched)
                         end
                     end
+                    _lastUpdatedDateSessions = newLastUpdatedSessions;
                     doneCallback()
                 end
             end)
@@ -296,6 +297,7 @@ function Client(id, name, sessionList, orderList)
                         LrErrors.throwUserError(hdrs.error.nativeCode)
                     end
                 else
+                    local newLastUpdatedDateOrders
                     for _, header in pairs(hdrs) do
                         if (type(header) == 'table' and header.field == "Date") then
                             local s = header.value
@@ -304,7 +306,7 @@ function Client(id, name, sessionList, orderList)
                             local MON = { Jan = "01", Feb = "02", Mar = "03", Apr = "04", May = "05", Jun = "06", Jul = "07", Aug = "08", Sep = "09", Oct = "10", Nov = "11", Dec = "12" }
                             month = MON[month]
                             day = string.format("%02d", day)
-                            _lastUpdatedDateOrders = year .. "-" .. month .. "-" .. day .. " " .. hour .. ":" .. min .. ":" .. sec
+                            newLastUpdatedDateOrders = year .. "-" .. month .. "-" .. day .. " " .. hour .. ":" .. min .. ":" .. sec
                         end
                     end
 
@@ -325,10 +327,7 @@ function Client(id, name, sessionList, orderList)
                                     --remove it from the list (all associated orders and orders are gone for free :D)
                                     _orderList.remove(currentOrder['id'])
                                 end
-                                ordersFetched = ordersFetched + 1
-                                updateCallback(ordersToFetch, ordersFetched)
                             else
-
                                 local orderDate = currentOrder.date
                                 local orderStatus = currentOrder.status
                                 if (foundOrder) then
@@ -337,20 +336,31 @@ function Client(id, name, sessionList, orderList)
                                 else
                                     _orderList.insertItem(currentOrder['id'], Order(currentOrder['id'], orderDate, orderStatus))
                                 end
-                                ordersFetched = ordersFetched + 1
-                                updateCallback(ordersToFetch, ordersFetched)
                             end
+                            ordersFetched = ordersFetched + 1
+                            updateCallback(ordersToFetch, ordersFetched)
                         end
                     end
+                    _lastUpdatedDateOrders = newLastUpdatedDateOrders
                     doneCallback()
                 end
             end)
         end
     end
 
+    function self.setLastUpdatedDateSessions(lastUpdatedDateSessions)
+        _lastUpdatedDateSessions = lastUpdatedDateSessions
+    end
+
+    function self.setLastUpdatedDateOrders(lastUpdatedDateOrders)
+        _lastUpdatedDateOrders = lastUpdatedDateOrders
+    end
+
     function self.loadData(clientData)
         self.setId(clientData['id'])
         self.setName(clientData['name'])
+        self.setLastUpdatedDateSessions(clientData['lastUpdatedDateSessions'])
+        self.setLastUpdatedDateOrders(clientData['lastUpdatedDateOrders'])
         if (clientData['orderList']) then
             for _, value in pairs(clientData['orderList']) do
                 local currentOrder = Order()
@@ -358,6 +368,7 @@ function Client(id, name, sessionList, orderList)
                 self.addOrder(currentOrder)
             end
         end
+
         if (clientData['sessionList']) then
             for _, value in pairs(clientData['sessionList']) do
                 local currentSession = Session()
@@ -368,11 +379,15 @@ function Client(id, name, sessionList, orderList)
     end
 
     function self.serialize()
-        return "{" .. self.toString() .. ", sessionList = " .. _sessionList.serialize() .. ", orderList =" .. _orderList.serialize() .. "}"
+        return "{" .. self.toString() .. ", sessionList = " .. _sessionList.serialize() ..
+                ", lastUpdatedDateSessions = '" .. (_lastUpdatedDateSessions or "") .. "' " ..
+                ", ordersList = " .. _orderList.serialize() .. ", lastUpdatedDateOrders = '" ..
+                (_lastUpdatedDateOrders or "") .. "' " .. "}"
     end
 
     return self
 end
+
 
 function User(id, name, email, apiKey, clientList, lastUpdatedDate)
     local self = ItemWithName(id, name)
@@ -456,7 +471,6 @@ function User(id, name, email, apiKey, clientList, lastUpdatedDate)
                 local serverQuery = SERVER .. "/clients?plugin=true"
                 if (_lastUpdatedDate) then
                     -- we have pulled data at least once ..we just need to pull updates now
-
                     serverQuery = serverQuery .. "&modifiedAfter=" .. _lastUpdatedDate
                 end
 

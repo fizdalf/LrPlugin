@@ -477,10 +477,10 @@ function PWUploadExportDialogSections.startDialog(propertyTable)
 end
 
 function PWUploadExportDialogSections.endDialog(propertyTable, why)
-
     local path = LrPathUtils.child(_PLUGIN.path, "test.txt")
     local result, error = io.open(path, "w")
-    result:write('return ' .. propertyTable.UserManager.serialize())
+    local serialized = propertyTable.UserManager.serialize()
+    result:write('return ' .. serialized)
     result:close()
 end
 
@@ -686,10 +686,16 @@ function PWUploadExportDialogSections.processRenderedPhotos(functionContext, exp
         end
     end
 
-
     local apiKey = UM.getLoggedInUser().getApiKey()
     local sessionId = UM.getSelectedSessionId()
+    if (sessionId) then
+        getSessionUpdates(exportParams)
+    end
+
     local orderId = UM.getSelectedOrderId()
+    if (orderId) then
+        getOrderUpdates(exportParams)
+    end
     -- Set progress title.
     local nPhotos = exportSession:countRenditions()
 
@@ -719,16 +725,18 @@ function PWUploadExportDialogSections.processRenderedPhotos(functionContext, exp
             local mimeChunks = {}
             mimeChunks[#mimeChunks + 1] = { name = 'photo', fileName = fileName, filePath = pathOrMessage, contentType = 'application/octet-stream' }
             if (sessionId) then
+                -- check if the session still exists
                 mimeChunks[#mimeChunks + 1] = { name = 'sessionId', value = sessionId, contentType = 'application/json' }
             else
                 mimeChunks[#mimeChunks + 1] = { name = 'orderId', value = orderId, contentType = 'application/json' }
             end
-            local result, hdrs = LrHttp.postMultipart("http://photoworkflow.co.uk/API1.3.9/upload", mimeChunks, headers)
+            local result, hdrs = LrHttp.postMultipart(SERVER .. "/upload", mimeChunks, headers, 600)
 
             if not result then
                 if hdrs and hdrs.error then
                     table.insert(failures, fileName)
-                    LrErrors.throwUserError(formatError(hdrs.error.nativeCode))
+                    print_to_log_table(hdrs.error)
+                    LrErrors.throwUserError(hdrs.error.nativeCode)
                 end
             else
                 local lua_result = JSON:decode(result)

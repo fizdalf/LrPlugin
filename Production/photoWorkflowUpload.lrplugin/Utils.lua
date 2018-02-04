@@ -9,7 +9,7 @@ local LrLogger = import 'LrLogger'
 local myLogger = LrLogger('testLogger')
 myLogger:enable("logfile")
 
-SERVER = "http://photoworkflow.co.uk/API1.3.11"
+SERVER = "http://www.photoworkflow.studio/API1.3.11"
 
 function print_to_log_table(t)
     local print_r_cache = {}

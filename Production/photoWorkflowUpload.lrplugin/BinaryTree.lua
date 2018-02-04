@@ -149,14 +149,20 @@ function BinaryTree()
         else
             local nodeLeft = node.getLeft()
             local nodeRight = node.getRight()
+            local parentLeft
+            local parentRight
+            if(parentNode ~= nil) then
+                parentLeft = parentNode.getLeft()
+                parentRight = parentNode.getRight()
+            end
             if (nodeLeft ~= nil and nodeRight ~= nil) then
                 local minKey, minItem = bst_min(nodeRight)
                 node.setKey(minKey)
                 node.setItem(minItem)
                 bst_remove(nodeRight, minKey, node)
-            elseif (parentNode.getLeft().getKey() == nodeKey) then
+            elseif (parentLeft ~= nil and parentLeft.getKey() == nodeKey) then
                 parentNode.setLeft(nodeLeft or nodeRight)
-            elseif (parentNode.getRight().getKey() == nodeKey) then
+            elseif (parentRight ~= nil and parentRight.getKey() == nodeKey) then
                 parentNode.setRight(nodeLeft or nodeRight)
             end
         end
