@@ -5,9 +5,9 @@
 -- Time: 16:23
 -- To change this template use File | Settings | File Templates.
 --
-local Require = require 'Require'.path("../debugscript.lrdevplugin")
-local Debug = require 'Debug'.init()
-require 'strict'
+--local Require = require 'Require.lua'.path("../debugscript.lrdevplugin")
+--local Debug = require 'Debug'.init()
+--require 'strict'
 
 
 require 'PWUploadExportDialogSections'
@@ -26,8 +26,8 @@ return {
     allowColorSpaces = nil, -- nil equates to all color spaces
 
     exportPresetFields = {},
-    startDialog = Debug.showErrors(PWUploadExportDialogSections.startDialog),
-    endDialog = Debug.showErrors(PWUploadExportDialogSections.endDialog),
-    sectionsForBottomOfDialog = Debug.showErrors(PWUploadExportDialogSections.sectionsForBottomOfDialog),
-    processRenderedPhotos = Debug.showErrors(PWUploadExportDialogSections.processRenderedPhotos),
+    startDialog = PWUploadExportDialogSections.startDialog,
+    endDialog = PWUploadExportDialogSections.endDialog,
+    sectionsForBottomOfDialog = PWUploadExportDialogSections.sectionsForBottomOfDialog,
+    processRenderedPhotos = PWUploadExportDialogSections.processRenderedPhotos,
 }

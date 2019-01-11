@@ -28,8 +28,8 @@ return {
         title = "Photo Workflow Upload",
         file = 'PWUploadExportServiceProvider.lua',
     },
-    LrExportMenuItems = {
-        { title = "Debug Script", file = "DebugScript.lua" }
-    },
+    --LrExportMenuItems = {
+    --    { title = "Debug Script", file = "DebugScript.lua" }
+    --},
     VERSION = { major = 0, minor = 0, revision = 1, build = 0, },
 }

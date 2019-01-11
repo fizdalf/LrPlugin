@@ -9,8 +9,9 @@ local LrLogger = import 'LrLogger'
 local myLogger = LrLogger('testLogger')
 myLogger:enable("logfile")
 
-local Debug = require 'Debug'.init()
-SERVER = "http://photoworkflow.co.uk/API1.3.11"
+
+SERVER = "http://photoworkflow.studio/API1.3.11"
+--SERVER = "http://api.photoworkflow.local/API1.3.11"
 
 function print_to_log_table(t)
     local print_r_cache = {}

@@ -16,10 +16,6 @@ local LrLogger = import 'LrLogger'
 local LrPathUtils = import 'LrPathUtils'
 local LrFileUtils = import 'LrFileUtils'
 local LrFunctionContext = import 'LrFunctionContext'
-local Debug = require 'Debug'.init()
-
-local LrStringUtils = import 'LrStringUtils'
-
 local myLogger = LrLogger('testLogger')
 myLogger:enable("logfile")
 
@@ -37,26 +33,26 @@ local function updateExportStatus(propertyTable)
         if propertyTable.loggedInUser == nil then
             propertyTable.logBtnLbl = "Login"
             message = "Please Login to Continue"
-            break;
+            break ;
         else
             propertyTable.logBtnLbl = "Logout"
         end
 
         if propertyTable.selectedClient == nil then
             message = "Please select a client"
-            break;
+            break ;
         end
 
         if propertyTable.selectedUpload then
             if propertyTable.selectedUpload == 'session' then
                 if not propertyTable.sessionIds then
                     message = "Please select a session"
-                    break;
+                    break ;
                 end
             else
                 if not propertyTable.orderIds then
                     message = "Please select an order"
-                    break;
+                    break ;
                 end
             end
         else
@@ -160,6 +156,7 @@ end
 
 local function getClientUpdates(prop)
     if (prop.loggedInUser) then
+        myLogger:trace('we do have a logged in user ...proceed with pulling clients')
         LrTasks.startAsyncTask(function()
             LrFunctionContext.callWithContext('function', function(context)
                 local isDone = false
@@ -206,6 +203,7 @@ local function getSessionUpdates(prop)
     if (prop.loggedInUser and prop.selectedClient) then
         LrTasks.startAsyncTask(function()
             LrFunctionContext.callWithContext('function', function(context)
+                prop.filteredSessionsList = {}
                 local isDone = false
                 local isUpdate
                 local progressScope = LrDialogs.showModalProgressDialog({
@@ -291,7 +289,22 @@ local function getOrderUpdates(prop)
         end)
     end
 end
+local function testPost()
+    LrTasks.startAsyncTask(function()
+        local mimeChunks = {}
+        mimeChunks[#mimeChunks + 1] = { name = 'email', value = 'fizdalf@gmail.com', contentType = 'application/json' }
+        mimeChunks[#mimeChunks + 1] = { name = 'password', value = 'fizdalf', contentType = 'application/json' }
 
+        local result, hdrs = LrHttp.postMultipart(SERVER .. "/testHeaders.php", mimeChunks)
+        if not result then
+            if hdrs and hdrs.error then
+                LrErrors.throwUserError(hdrs.error)
+            end
+        else
+            local lua_result = JSON:decode(result)
+        end
+    end)
+end
 local function login(propertyTable)
     LrTasks.startAsyncTask(function()
         local mimeChunks = {}
@@ -306,24 +319,27 @@ local function login(propertyTable)
         else
             local lua_result = JSON:decode(result)
             if (lua_result.state ~= 1) then
+                print_to_log_table(result)
                 LrDialogs.message("Login Failed!")
             else
                 if (lua_result.userType ~= 'member') then
                     LrDialogs.message("Login Failed!")
                 else
                     LrDialogs.message("Welcome ", lua_result.userName)
-
+                    print_to_log_table(lua_result)
                     local loggedUser = User(lua_result.userId, lua_result.userName, propertyTable.email, lua_result.ApiKey)
                     -- check if the user exists already in the UM
 
                     local foundUser = propertyTable.UserManager.findUser(lua_result.userId)
                     if (foundUser) then
                         -- we have found the user..update the data ..just in case
+                        myLogger:trace('we have found the user')
                         foundUser.setName(loggedUser.getName())
                         foundUser.setEmail(propertyTable.email)
                         foundUser.setApiKey(lua_result.ApiKey)
                     else
                         -- we haven't found the user ..it's a first timer!
+                        myLogger:trace('we have not found the user, we are adding it')
                         propertyTable.UserManager.addUser(loggedUser)
                     end
                     -- set the user as the logged in user
@@ -434,7 +450,8 @@ local function filterOrders(prop)
     end
 end
 
-local function registeObservers(prop) end
+local function registeObservers(prop)
+end
 
 function PWUploadExportDialogSections.startDialog(propertyTable)
 
@@ -655,7 +672,10 @@ function PWUploadExportDialogSections.processRenderedPhotos(functionContext, exp
     local exportParams = exportContext.propertyTable
 
     local UserManager = exportParams.UserManager
-    local apiKey = UserManager.getLoggedInUser.getApiKey()
+    local loggedInUser = UserManager.getLoggedInUser()
+    print_to_log_table(loggedInUser)
+    local apiKey = loggedInUser.getApiKey()
+    print_to_log_table(apiKey)
     local sessionId = UserManager.getSelectedSessionId()
     local orderId = UserManager.getSelectedOrderId()
     -- Set progress title.
@@ -676,11 +696,14 @@ function PWUploadExportDialogSections.processRenderedPhotos(functionContext, exp
         -- Wait for next photo to render.
         local success, pathOrMessage = rendition:waitForRender()
         -- Check for cancellation again after photo has been rendered.
-        if progressScope:isCanceled() then break end
+        if progressScope:isCanceled() then
+            break
+        end
         if success then
 
             local fileName = LrPathUtils.leafName(pathOrMessage)
-
+            myLogger:trace('Apikey at this point is: ')
+            myLogger:trace(apiKey)
             local headers = {
                 { field = 'Authorization', value = apiKey }
             }
@@ -691,7 +714,7 @@ function PWUploadExportDialogSections.processRenderedPhotos(functionContext, exp
             else
                 mimeChunks[#mimeChunks + 1] = { name = 'orderId', value = orderId, contentType = 'application/json' }
             end
-            local result, hdrs = LrHttp.postMultipart("http://photoworkflow.co.uk/API1.3.9/upload", mimeChunks, headers)
+            local result, hdrs = LrHttp.postMultipart(SERVER .. "/upload", mimeChunks, headers)
 
             if not result then
                 if hdrs and hdrs.error then

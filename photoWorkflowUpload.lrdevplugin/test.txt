@@ -1,1 +1,0 @@
-return { userList = nil , loggedInUserId = nil, selectedClientId = nil, selectedSessionId = nil, selectedOrderId = nil }

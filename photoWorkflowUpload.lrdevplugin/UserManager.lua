@@ -16,7 +16,6 @@ local LrHttp = import 'LrHttp'
 local JSON = require "JSON" -- one-time load of the routines
 
 require 'Utils'
-local Debug = require 'Debug'.init()
 
 myLogger:enable("logfile")
 function Item(id)
@@ -208,7 +207,7 @@ function Client(id, name, sessionList, orderList)
                 if (_lastUpdatedDateSessions ~= nil) then
                     serverQuery = serverQuery .. "?modifiedAfter=" .. _lastUpdatedDateSessions
                 end
-
+                myLogger:trace("Fetching sessions from server with query ", serverQuery)
                 local result, hdrs = LrHttp.get(serverQuery, headers)
                 if not result then
                     if hdrs and hdrs.error then
@@ -229,6 +228,7 @@ function Client(id, name, sessionList, orderList)
 
                     local lua_result = JSON:decode(result)
                     local sessionsToFetch
+                    print_to_log_table(lua_result.sessions)
                     if (lua_result.sessions) then
                         sessionsToFetch = #lua_result.sessions;
                         local sessionsFetched = 0;
@@ -238,9 +238,11 @@ function Client(id, name, sessionList, orderList)
                             local currentSession = value -- cache the client head
 
                             local foundSession = _sessionList.search(currentSession['id']) -- search for it in the BST
-                            if (currentSession['deleted'] == 1) then -- check if the client is marke for deletion
+                            if (currentSession['deleted'] == 1) then
+                                -- check if the client is marke for deletion
 
-                                if (foundSession) then -- in case we find it
+                                if (foundSession) then
+                                    -- in case we find it
                                     --remove it from the list (all associated sessions and orders are gone for free :D)
                                     _sessionList.remove(currentSession['id'])
                                 end
@@ -306,9 +308,11 @@ function Client(id, name, sessionList, orderList)
                             local currentOrder = value -- cache the client head
 
                             local foundOrder = _orderList.search(currentOrder['id']) -- search for it in the BST
-                            if (currentOrder['deleted'] == 1) then -- check if the client is marke for deletion
+                            if (currentOrder['deleted'] == 1) then
+                                -- check if the client is marke for deletion
 
-                                if (foundOrder) then -- in case we find it
+                                if (foundOrder) then
+                                    -- in case we find it
                                     --remove it from the list (all associated orders and orders are gone for free :D)
                                     _orderList.remove(currentOrder['id'])
                                 end
@@ -367,7 +371,6 @@ function User(id, name, email, apiKey, clientList, lastUpdatedDate)
     local _apiKey = apiKey
     local _clientList = clientList or BinaryTree();
     local _lastUpdatedDate = lastUpdatedDate or nil;
-
 
     function self.getEmail()
         return _email
@@ -436,6 +439,7 @@ function User(id, name, email, apiKey, clientList, lastUpdatedDate)
         -- lets see if we don't put the startAsync here..
         -- first we should check if we have already pulled clients
         if (_apiKey) then
+            myLogger:trace('we are trying to pull the list of clients..and we do have an API key!!')
             LrTasks.startAsyncTask(function()
                 local headers = {
                     { field = 'Authorization', value = _apiKey }
@@ -443,16 +447,19 @@ function User(id, name, email, apiKey, clientList, lastUpdatedDate)
                 local serverQuery = SERVER .. "/clients?plugin=true"
                 if (_lastUpdatedDate) then
                     -- we have pulled data at least once ..we just need to pull updates now
-
                     serverQuery = serverQuery .. "&modifiedAfter=" .. _lastUpdatedDate
                 end
-
+                myLogger:trace('server query', serverQuery)
                 local result, hdrs = LrHttp.get(serverQuery, headers)
                 if not result then
+                    myLogger:trace('failed to retrieve data')
+                    print_to_log_table(result)
+                    print_to_log_table(hdrs)
                     if hdrs and hdrs.error then
                         LrErrors.throwUserError(hdrs.error.nativeCode)
                     end
                 else
+
                     for _, header in pairs(hdrs) do
                         if (type(header) == 'table' and header.field == "Date") then
                             local s = header.value
@@ -466,6 +473,8 @@ function User(id, name, email, apiKey, clientList, lastUpdatedDate)
                     end
 
                     local lua_result = JSON:decode(result)
+
+                    print_to_log_table(lua_result)
                     local clientsToFetch
                     if (lua_result.clients) then
                         clientsToFetch = #lua_result.clients;
@@ -476,9 +485,11 @@ function User(id, name, email, apiKey, clientList, lastUpdatedDate)
                             local currentClient = value -- cache the client head
 
                             local foundClient = _clientList.search(currentClient['id']) -- search for it in the BST
-                            if (currentClient['deleted'] == 1) then -- check if the client is marke for deletion
+                            if (currentClient['deleted'] == 1) then
+                                -- check if the client is marke for deletion
 
-                                if (foundClient) then -- in case we find it
+                                if (foundClient) then
+                                    -- in case we find it
                                     --remove it from the list (all associated sessions and orders are gone for free :D)
                                     _clientList.remove(currentClient['id'])
                                 end
@@ -546,7 +557,6 @@ function UserManager()
     end
 
     function self.setLoggedInUser(user)
-
         _loggedInUser = user
     end
 
