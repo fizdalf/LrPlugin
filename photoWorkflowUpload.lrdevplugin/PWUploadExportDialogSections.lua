@@ -460,7 +460,7 @@ function PWUploadExportDialogSections.startDialog(propertyTable)
     local UM = propertyTable.UserManager
     -- try to load data
 
-    local path = LrPathUtils.child(_PLUGIN.path, "test.txt")
+    local path = LrPathUtils.child(_PLUGIN.path, "data-v1.txt")
     local chunk, error = loadfile(path)
     if chunk ~= nil then
         -- success, result contains the retrieved chunk
@@ -494,7 +494,7 @@ end
 
 function PWUploadExportDialogSections.endDialog(propertyTable, why)
 
-    local path = LrPathUtils.child(_PLUGIN.path, "test.txt")
+    local path = LrPathUtils.child(_PLUGIN.path, "data-v1.txt")
     local result, error = io.open(path, "w")
     result:write('return ' .. propertyTable.UserManager.serialize())
     result:close()
@@ -707,24 +707,37 @@ function PWUploadExportDialogSections.processRenderedPhotos(functionContext, exp
             local headers = {
                 { field = 'Authorization', value = apiKey }
             }
+
+            --case "session":
+            --this.file_type=1;
+            --break;
+            --case "raw":
+            --this.file_type=2;
+            --break;
+            --case "final":
+            --this.file_type=3;
+            --break;
+
+            -- I need to provide both sessionId and order id for orders
+
+            local serverQuery = SERVER .. "/upload";
             local mimeChunks = {}
-            mimeChunks[#mimeChunks + 1] = { name = 'photo', fileName = fileName, filePath = pathOrMessage, contentType = 'application/octet-stream' }
-            if (sessionId) then
-                mimeChunks[#mimeChunks + 1] = { name = 'sessionId', value = sessionId, contentType = 'application/json' }
+            mimeChunks[#mimeChunks + 1] = { name = 'files[]', fileName = fileName, filePath = pathOrMessage, contentType = 'application/octet-stream' }
+            if (orderId) then
+                local orderSessionId = UserManager.getSelectedOrderSessionId()
+                serverQuery = serverQuery .. "?sessionid=" .. orderSessionId .. "&orderid=" .. orderId .. "&file_type=3"
             else
-                mimeChunks[#mimeChunks + 1] = { name = 'orderId', value = orderId, contentType = 'application/json' }
+                serverQuery = serverQuery .. "?sessionid=" .. sessionId .. "&file_type=1"
             end
-            local result, hdrs = LrHttp.postMultipart(SERVER .. "/upload", mimeChunks, headers)
+
+            myLogger:trace('server query: ', serverQuery)
+
+            local result, hdrs = LrHttp.postMultipart(serverQuery, mimeChunks, headers)
 
             if not result then
                 if hdrs and hdrs.error then
                     table.insert(failures, fileName)
                     LrErrors.throwUserError(formatError(hdrs.error.nativeCode))
-                end
-            else
-                local lua_result = JSON:decode(result)
-                if (lua_result.status ~= 1) then
-                    table.insert(failures, result)
                 end
             end
 

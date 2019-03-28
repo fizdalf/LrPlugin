@@ -10,7 +10,7 @@ local myLogger = LrLogger('testLogger')
 myLogger:enable("logfile")
 
 
-SERVER = "http://photoworkflow.studio/API1.3.11"
+SERVER = "http://3.83.35.38:8080/"
 --SERVER = "http://api.photoworkflow.local/API1.3.11"
 
 function print_to_log_table(t)

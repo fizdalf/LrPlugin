@@ -91,10 +91,11 @@ function Session(id, name, date)
     return self
 end
 
-function Order(id, date, status)
+function Order(id, date, status, sessionId)
     local self = Item(id)
     local _date = date
     local _status = status
+    local _sessionId = sessionId
 
     function self.getDate()
         return _date
@@ -112,15 +113,24 @@ function Order(id, date, status)
         _status = status
     end
 
+    function self.getSessionId()
+        return _sessionId
+    end
+
+    function self.setSessionId(value)
+        _sessionId = value
+    end
+
     local baseToString = self.toString
     function self.toString()
-        return baseToString() .. ", date = '" .. (_date or "nil") .. "', status = '" .. (_status or "nil") .. "'"
+        return baseToString() .. ", date = '" .. (_date or "nil") .. "', status = '" .. (_status or "nil") .. "', sessionId = " .. (_sessionId or "nil")
     end
 
     function self.loadData(orderData)
         self.setId(orderData['id'])
         self.setDate(orderData['date'])
         self.setStatus(orderData['status'])
+        self.setSessionId(orderData['sessionId'])
     end
 
     function self.serialize()
@@ -203,9 +213,9 @@ function Client(id, name, sessionList, orderList)
                 local headers = {
                     { field = 'Authorization', value = apiKey }
                 }
-                local serverQuery = SERVER .. "/clients/" .. self.getId() .. "/sessions"
+                local serverQuery = SERVER .. "/clients/" .. self.getId() .. "/sessions/all"
                 if (_lastUpdatedDateSessions ~= nil) then
-                    serverQuery = serverQuery .. "?modifiedAfter=" .. _lastUpdatedDateSessions
+                    serverQuery = SERVER .. "/clients/" .. self.getId() .. "/sessions/updated?modifiedAfter=" .. _lastUpdatedDateSessions
                 end
                 myLogger:trace("Fetching sessions from server with query ", serverQuery)
                 local result, hdrs = LrHttp.get(serverQuery, headers)
@@ -228,17 +238,17 @@ function Client(id, name, sessionList, orderList)
 
                     local lua_result = JSON:decode(result)
                     local sessionsToFetch
-                    print_to_log_table(lua_result.sessions)
-                    if (lua_result.sessions) then
-                        sessionsToFetch = #lua_result.sessions;
+                    print_to_log_table(lua_result.data)
+                    if (lua_result.data) then
+                        sessionsToFetch = #lua_result.data;
                         local sessionsFetched = 0;
                         updateCallback(sessionsToFetch, sessionsFetched)
-                        for _, value in pairs(lua_result.sessions) do
+                        for _, value in pairs(lua_result.data) do
 
                             local currentSession = value -- cache the client head
 
                             local foundSession = _sessionList.search(currentSession['id']) -- search for it in the BST
-                            if (currentSession['deleted'] == 1) then
+                            if (currentSession['status'] == 'deleted') then
                                 -- check if the client is marke for deletion
 
                                 if (foundSession) then
@@ -275,9 +285,9 @@ function Client(id, name, sessionList, orderList)
                     { field = 'Authorization', value = apiKey }
                 }
 
-                local serverQuery = SERVER .. "/clients/" .. self.getId() .. "/orders"
+                local serverQuery = SERVER .. "/clients/" .. self.getId() .. "/orders/all"
                 if (_lastUpdatedDateOrders ~= nil) then
-                    serverQuery = serverQuery .. "?modifiedAfter=" .. _lastUpdatedDateOrders
+                    serverQuery = SERVER .. "/clients/" .. self.getId() .. "/orders/updated?modifiedAfter=" .. _lastUpdatedDateOrders
                 end
                 local result, hdrs = LrHttp.get(serverQuery, headers)
                 if not result then
@@ -299,16 +309,16 @@ function Client(id, name, sessionList, orderList)
 
                     local lua_result = JSON:decode(result)
                     local ordersToFetch
-                    if (lua_result.orders) then
-                        ordersToFetch = #lua_result.orders;
+                    if (lua_result.data) then
+                        ordersToFetch = #lua_result.data;
                         local ordersFetched = 0;
                         updateCallback(ordersToFetch, ordersFetched)
-                        for _, value in pairs(lua_result.orders) do
+                        for _, value in pairs(lua_result.data) do
 
                             local currentOrder = value -- cache the client head
 
                             local foundOrder = _orderList.search(currentOrder['id']) -- search for it in the BST
-                            if (currentOrder['deleted'] == 1) then
+                            if (currentOrder['status'] == 'deleted') then
                                 -- check if the client is marke for deletion
 
                                 if (foundOrder) then
@@ -326,7 +336,7 @@ function Client(id, name, sessionList, orderList)
                                     foundOrder.setDate(orderDate)
                                     foundOrder.setStatus(orderStatus)
                                 else
-                                    _orderList.insertItem(currentOrder['id'], Order(currentOrder['id'], orderDate, orderStatus))
+                                    _orderList.insertItem(currentOrder['id'], Order(currentOrder['id'], orderDate, orderStatus, currentOrder['sessionId']))
                                 end
                                 ordersFetched = ordersFetched + 1
                                 updateCallback(ordersToFetch, ordersFetched)
@@ -339,9 +349,19 @@ function Client(id, name, sessionList, orderList)
         end
     end
 
+    function self.setLastUpdatedDateSessions(date)
+        _lastUpdatedDateSessions = date;
+    end
+
+    function self.setLastUpdatedDateOrders(date)
+        _lastUpdatedDateOrders = date;
+    end
+
     function self.loadData(clientData)
         self.setId(clientData['id'])
         self.setName(clientData['name'])
+        self.setLastUpdatedDateSessions(clientData['lastUpdatedDateSessions'])
+        self.setLastUpdatedDateOrders(clientData['lastUpdatedDateOrders'])
         if (clientData['orderList']) then
             for _, value in pairs(clientData['orderList']) do
                 local currentOrder = Order()
@@ -356,10 +376,13 @@ function Client(id, name, sessionList, orderList)
                 self.addSession(currentSession)
             end
         end
+
+
     end
 
     function self.serialize()
-        return "{" .. self.toString() .. ", sessionList = " .. _sessionList.serialize() .. ", orderList =" .. _orderList.serialize() .. "}"
+        return "{" .. self.toString() .. ", sessionList = " .. _sessionList.serialize() .. ", orderList =" ..
+                _orderList.serialize() .. ", lastUpdatedDateSessions=\"" .. (_lastUpdatedDateSessions or '') .. "\", lastUpdatedDateOrders=\"" .. (_lastUpdatedDateOrders or '') .. "\" }"
     end
 
     return self
@@ -444,10 +467,10 @@ function User(id, name, email, apiKey, clientList, lastUpdatedDate)
                 local headers = {
                     { field = 'Authorization', value = _apiKey }
                 }
-                local serverQuery = SERVER .. "/clients?plugin=true"
+                local serverQuery = SERVER .. "/clients/all"
                 if (_lastUpdatedDate) then
                     -- we have pulled data at least once ..we just need to pull updates now
-                    serverQuery = serverQuery .. "&modifiedAfter=" .. _lastUpdatedDate
+                    serverQuery = SERVER .. "/clients/updated?modifiedAfter=" .. _lastUpdatedDate
                 end
                 myLogger:trace('server query', serverQuery)
                 local result, hdrs = LrHttp.get(serverQuery, headers)
@@ -473,7 +496,7 @@ function User(id, name, email, apiKey, clientList, lastUpdatedDate)
                     end
 
                     local lua_result = JSON:decode(result)
-
+                    myLogger:trace('should print JSON decoded data')
                     print_to_log_table(lua_result)
                     local clientsToFetch
                     if (lua_result.clients) then
@@ -485,8 +508,8 @@ function User(id, name, email, apiKey, clientList, lastUpdatedDate)
                             local currentClient = value -- cache the client head
 
                             local foundClient = _clientList.search(currentClient['id']) -- search for it in the BST
-                            if (currentClient['deleted'] == 1) then
-                                -- check if the client is marke for deletion
+                            if (currentClient['status'] == 'deleted') then
+                                -- check if the client is marked for deletion
 
                                 if (foundClient) then
                                     -- in case we find it
@@ -496,7 +519,7 @@ function User(id, name, email, apiKey, clientList, lastUpdatedDate)
                                 clientsFetched = clientsFetched + 1
                                 updateFunction(clientsToFetch, clientsFetched)
                             else
-                                local clientName = currentClient['name']
+                                local clientName = currentClient['firstName'] .. " " .. currentClient['lastName'];
                                 if (foundClient) then
                                     foundClient.setName(clientName)
                                 else
@@ -582,6 +605,42 @@ function UserManager()
 
     function self.setSelectedOrderId(selectedOrderId)
         _selectedOrderId = selectedOrderId
+    end
+
+    function self.getSelectedClient()
+        if (_selectedClientId == nil) then
+            return nil
+        end
+
+        return _loggedInUser.findClient(_selectedClientId)
+    end
+
+    function self.getSelectedOrderSessionId()
+        myLogger:trace('requesting order session id')
+        if (_selectedOrderId == nil) then
+            myLogger:trace('we do not have any order id')
+            return nil
+        end
+
+        local client = self.getSelectedClient()
+
+        if (client == nil) then
+            myLogger:trace('we do not have a client selected')
+            return nil;
+        end
+
+        local order = client.findOrder(_selectedOrderId)
+
+        if (order == nil) then
+            myLogger:trace('we could not find the order')
+            return nil
+        end
+
+        myLogger:trace('the session id stored in the order is: ', order.getSessionId())
+
+        print_to_log_table(order)
+
+        return order.getSessionId()
     end
 
     function self.loadData(data)
